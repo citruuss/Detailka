@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог - Деталька</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="index.html">
+                <img src="images/лого.png" alt="Логотип" style="height: 40px; width: auto; display: inline-block; margin-right: 10px;">
+                Деталька - магазин автозапчастей
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="catalog.html">Каталог</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cart.html">Корзина (<span id="cartCount">0</span>)</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Профиль</a></li>
+                    <li class="nav-item" id="adminNavItem" style="display: none;">
+                        <a class="nav-link" href="admin.html">Админ-панель</a>
+                    </li>
+                    <li class="nav-item" id="logoutNavItem" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logoutUser(); return false;">Выйти</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Каталог автозапчастей</h1>
+       
+        <!-- Фильтры -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <select id="categoryFilter" class="form-select">
+                    <option value="all">Все категории</option>
+                    <option value="engine">Двигатель</option>
+                    <option value="brakes">Тормозная система</option>
+                    <option value="suspension">Подвеска и шины</option>
+                    <option value="electrics">Электрика и климат</option>
+                    <option value="body">Кузов и оптика</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <select id="sortSelect" class="form-select">
+                    <option value="default">По умолчанию</option>
+                    <option value="price-asc">Цена: сначала дешевле</option>
+                    <option value="price-desc">Цена: сначала дороже</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="row g-4" id="productsContainer">
+            <!-- Товар 1: Фара правая -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="1" data-category="body" data-name="Фара правая" data-price="2450" data-article="BP-001">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Фара.webp" alt="Фара правая" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Фара правая "Свет в конце тоннеля"</h5>
+                        <p class="card-text small text-muted">Артикул: BP-001</p>
+                        <p class="card-text small">Очень яркая фара с длительным сроком службы.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">2 450 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(1, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 2: Фара левая -->
+            <div class="col-md-4 col-lg-3 product-item" data-id="2" data-category="body" data-name="Фара левая" data-price="2450" data-article="BP-002">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Фара.webp" alt="Фара левая" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Фара левая "Тоннель в конце света"</h5>
+                        <p class="card-text small text-muted">Артикул: BP-002</p>
+                        <p class="card-text small">Очень яркая фара с длительным сроком службы.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">2 450 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(2, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 3: Дворники -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="3" data-category="body" data-name="Дворники" data-price="3450" data-article="OF-002">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Дворники.png" alt="Дворники" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Дворники "Анти кап-кап"</h5>
+                        <p class="card-text small text-muted">Артикул: OF-002</p>
+                        <p class="card-text small">Оригинальные дворники для идеальной очистки стекла.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">3 450 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(3, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 4: Сигнализация -->
+            <div class="col-md-4 col-lg-3 product-item" data-id="4" data-category="electrics" data-name="Сигнализация" data-price="3850" data-article="SA-003">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Сигнализация.webp" alt="Сигнализация" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Сигнализация "Виу-Виу"</h5>
+                        <p class="card-text small text-muted">Артикул: SA-003</p>
+                        <p class="card-text small">Современная система сигнализации с дистанционным управлением.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">3 850 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(4, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 5: Клаксон -->
+            <div class="col-md-4 col-lg-3 product-item" data-id="5" data-category="electrics" data-name="Клаксон" data-price="5200" data-article="BT-004">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Клаксон.webp" alt="Клаксон" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Клаксон "Вместо тысячи слов"</h5>
+                        <p class="card-text small text-muted">Артикул: BT-004</p>
+                        <p class="card-text small">Клаксон с мощным звуком, подходящий для всех типов транспорта.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">5 200 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(5, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 6: Аккумулятор -->
+            <div class="col-md-4 col-lg-3 product-item" data-id="6" data-category="engine" data-name="Аккумулятор" data-price="17890" data-article="TB-005">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Аккумулятор.webp" alt="Аккумулятор" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Аккумулятор "Коробочка питания"</h5>
+                        <p class="card-text small text-muted">Артикул: TB-005</p>
+                        <p class="card-text small">Кальциевый аккумулятор, пусковой ток 540A.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">17 890 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(6, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 7: Свеча зажигания -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="7" data-category="engine" data-name="Свеча зажигания" data-price="1850" data-article="BD-006">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Свеча зажигания.webp" alt="Свеча зажигания" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Свеча зажигания "Маленькая молния"</h5>
+                        <p class="card-text small text-muted">Артикул: BD-006</p>
+                        <p class="card-text small">Свеча зажигания для безупречной работы двигателя.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">1 850 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(7, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 8: Тормозные колодки -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="8" data-category="brakes" data-name="Тормозные колодки" data-price="1250" data-article="SB-007">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Тормозные колодки.webp" alt="Тормозные колодки" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Тормозные колодки "Стоп!"</h5>
+                        <p class="card-text small text-muted">Артикул: SB-007</p>
+                        <p class="card-text small">Оригинальные тормозные колодки для рулевой системы.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">1 250 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(8, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 9: Амортизатор -->
+            <div class="col-md-4 col-lg-3 product-item" data-id="9" data-category="suspension" data-name="Амортизатор" data-price="1200" data-article="SP-008">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/Амортизатор.jpg" alt="Амортизатор" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Амортизатор</h5>
+                        <p class="card-text small text-muted">Артикул: SP-008</p>
+                        <p class="card-text small">Оригинальный амортизатор для лучшего комфорта вождения.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">1 200 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(9, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 10: Печка -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="10" data-category="electrics" data-name="Печка" data-price="1200" data-article="SP-009">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/печка.webp" alt="Печка" class="product-card-img">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Печка "Всегда тепло"</h5>
+                        <p class="card-text small text-muted">Артикул: SP-009</p>
+                        <p class="card-text small">Спасет вас от замерзания в холодное время года.</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">1 200 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(10, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+                    <!-- Товар 11: Кондиционер "Ледышка" -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="11" data-category="electrics" data-name="Кондиционер Ледышка" data-price="15900" data-article="AC-011">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/кондиционер.webp" alt="Кондиционер Ледышка" class="product-card-img" onerror="this.src='images/placeholder.jpg'">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Кондиционер "Ледышка"</h5>
+                        <p class="card-text small text-muted">Артикул: AC-011</p>
+                        <p class="card-text small">Мощный кондиционер, охлаждает салон за 30 секунд. Ледяной ветер гарантирован!</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">15 900 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(11, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 12: Шина летняя "Резиновый бублик" -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="12" data-category="suspension" data-name="Шина летняя Резиновый бублик" data-price="4500" data-article="TR-012">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/шина летняя.webp" alt="Шина летняя Резиновый бублик" class="product-card-img" onerror="this.src='images/placeholder.jpg'">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Шина летняя "Резиновый бублик"</h5>
+                        <p class="card-text small text-muted">Артикул: TR-012</p>
+                        <p class="card-text small">Летняя шина для отличного сцепления с дорогой. Не бойся жары!</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">4 500 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(12, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 13: Шина зимняя "Злой резиновый бублик" -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="13" data-category="suspension" data-name="Шина зимняя Злой резиновый бублик" data-price="5800" data-article="TR-013">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/шина зимняя.webp" alt="Шина зимняя Злой резиновый бублик" class="product-card-img" onerror="this.src='images/placeholder.jpg'">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Шина зимняя "Злой резиновый бублик"</h5>
+                        <p class="card-text small text-muted">Артикул: TR-013</p>
+                        <p class="card-text small">Зимняя шина с шипами. Не подведёт даже в самую суровую зиму!</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">5 800 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(13, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 14: Выхлопная труба "Пых-Пых" -->
+           <div class="col-md-4 col-lg-3 product-item" data-id="14" data-category="engine" data-name="Выхлопная труба Пых-Пых" data-price="3200" data-article="EX-014">
+                <div class="card product-card h-100">
+                    <div class="text-center pt-3">
+                        <img src="images/выхлопная труба.webp" alt="Выхлопная труба Пых-Пых" class="product-card-img" onerror="this.src='images/placeholder.jpg'">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Выхлопная труба "Пых-Пых"</h5>
+                        <p class="card-text small text-muted">Артикул: EX-014</p>
+                        <p class="card-text small">Спортивная выхлопная система. Звук как у гоночного автомобиля!</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 mb-0">3 200 ₽</span>
+                            <button class="btn btn-dark btn-sm" onclick="addToCart(14, 1)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <footer class="text-white text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2026 Деталька. Все права защищены.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        
+    // Сохраняем исходный порядок товаров при загрузке страницы
+    let originalOrder = [];
+    
+    function saveOriginalOrder() {
+        const container = document.getElementById('productsContainer');
+        const products = Array.from(container.querySelectorAll('.product-item'));
+        originalOrder = products.map(product => product.cloneNode(true));
+    }
+    
+    function restoreOriginalOrder() {
+        const container = document.getElementById('productsContainer');
+        // Очищаем контейнер
+        container.innerHTML = '';
+        // Восстанавливаем товары в исходном порядке
+        originalOrder.forEach(originalProduct => {
+            const newProduct = originalProduct.cloneNode(true);
+            container.appendChild(newProduct);
+        });
+        // Обновляем ссылки на товары после восстановления
+        attachFilterEvents();
+    }
+    
+    // Функция фильтрации
+    function filterCatalog() {
+        const searchText = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+        const category = document.getElementById('categoryFilter')?.value || 'all';
+        const sortBy = document.getElementById('sortSelect')?.value || 'default';
+        const priceMax = document.getElementById('priceMax')?.value || '';
+        
+        // Если выбрана сортировка "По умолчанию" - восстанавливаем исходный порядок
+        if (sortBy === 'default') {
+            restoreOriginalOrder();
+        }
+        
+        // Получаем актуальные товары (после возможного восстановления)
+        const container = document.getElementById('productsContainer');
+        let products = Array.from(container.querySelectorAll('.product-item'));
+        let visibleCount = 0;
+        
+        // Фильтрация
+        products.forEach(product => {
+            const productCategory = product.getAttribute('data-category');
+            const productName = product.getAttribute('data-name').toLowerCase();
+            const productPrice = parseInt(product.getAttribute('data-price'));
+            
+            const matchesSearch = searchText === '' || productName.includes(searchText);
+            const matchesCategory = category === 'all' || productCategory === category;
+            const matchesPrice = priceMax === '' || productPrice <= parseInt(priceMax);
+            
+            if (matchesSearch && matchesCategory && matchesPrice) {
+                product.style.display = '';
+                visibleCount++;
+            } else {
+                product.style.display = 'none';
+            }
+        });
+        
+        // Обновляем счётчик
+        const resultCount = document.getElementById('resultCount');
+        if (resultCount) {
+            resultCount.textContent = `Найдено товаров: ${visibleCount}`;
+        }
+                
+        // Сортировка (только если не "По умолчанию")
+        if (sortBy !== 'default') {
+            // Получаем только видимые товары
+            const visibleProducts = Array.from(products).filter(p => p.style.display !== 'none');
+            const hiddenProducts = Array.from(products).filter(p => p.style.display === 'none');
+            
+            visibleProducts.sort((a, b) => {
+                const priceA = parseInt(a.getAttribute('data-price'));
+                const priceB = parseInt(b.getAttribute('data-price'));
+                if (sortBy === 'price-asc') return priceA - priceB;
+                if (sortBy === 'price-desc') return priceB - priceA;
+                return 0;
+            });
+            
+            // Пересобираем: сначала отсортированные видимые, потом скрытые
+            visibleProducts.forEach(product => container.appendChild(product));
+            hiddenProducts.forEach(product => container.appendChild(product));
+        }
+    }
+    
+    function resetFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortSelect = document.getElementById('sortSelect');
+        const priceMax = document.getElementById('priceMax');
+        
+        if (searchInput) searchInput.value = '';
+        if (categoryFilter) categoryFilter.value = 'all';
+        if (sortSelect) sortSelect.value = 'default';
+        if (priceMax) priceMax.value = '';
+        
+        // Восстанавливаем исходный порядок
+        restoreOriginalOrder();
+        filterCatalog();
+    }
+    
+    function attachFilterEvents() {
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortSelect = document.getElementById('sortSelect');
+        const priceMax = document.getElementById('priceMax');
+        
+        if (searchInput) searchInput.addEventListener('input', filterCatalog);
+        if (categoryFilter) categoryFilter.addEventListener('change', filterCatalog);
+        if (sortSelect) sortSelect.addEventListener('change', filterCatalog);
+        if (priceMax) priceMax.addEventListener('input', filterCatalog);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Сохраняем исходный порядок товаров
+       if (typeof renderCustomProducts === 'function') {
+        renderCustomProducts();
+        }
+        saveOriginalOrder();
+        
+        if (typeof updateCartCount === 'function') {
+            updateCartCount();
+        }
+        
+        attachFilterEvents();
+        filterCatalog();
+        showAdminDeleteButtons();
+    });
+</script>
+</body>
+</html>

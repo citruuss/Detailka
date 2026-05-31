@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React API - Деталька</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Babel для JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Библиотека для валидации -->
+    <script src="https://cdn.jsdelivr.net/npm/validator@13.12.0/validator.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="index.html">
+                <img src="images/лого.png" alt="Логотип" style="height: 40px; width: auto; display: inline-block; margin-right: 10px;">
+                Деталька - магазин автозапчастей
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link" href="catalog.html">Каталог</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cart.html">Корзина (<span id="cartCount">0</span>)</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Профиль</a></li>
+
+                    <li class="nav-item" id="adminNavItem" style="display: none;">
+                        <a class="nav-link" href="admin.html">Админ-панель</a>
+                    </li>
+
+                    <li class="nav-item" id="logoutNavItem" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logoutUser(); return false;">Выйти</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-5">
+        <h1 class="text-center mb-4">React-страница работы с API</h1>
+
+        <!-- Сообщение, если пользователь не админ -->
+        <div id="accessDenied" class="alert alert-warning text-center" style="display: none;">
+            <h4>Доступ запрещён</h4>
+            <p>Эта страница доступна только администратору.</p>
+            <a href="login.html" class="btn btn-dark">Войти как администратор</a>
+            <a href="index.html" class="btn btn-outline-dark">На главную</a>
+        </div>
+
+        <!-- Сообщение загрузки до запуска React -->
+        <div id="reactFallback" class="alert alert-info text-center" style="display: none;">
+            Загрузка React-модуля...
+        </div>
+
+        <!-- Сюда монтируется React -->
+        <div id="reactRoot" style="display: none;"></div>
+    </main>
+
+    <footer class="text-white text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2026 Деталька. Все права защищены.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <!-- Простая защита страницы до запуска React -->
+    <script>
+        const pageUser = typeof getCurrentUser === 'function'
+            ? getCurrentUser()
+            : null;
+
+        const isAdminPageUser = pageUser && pageUser.role === 'admin';
+
+        if (!isAdminPageUser) {
+            document.getElementById('accessDenied').style.display = 'block';
+        } else {
+            document.getElementById('reactFallback').style.display = 'block';
+            document.getElementById('reactRoot').style.display = 'block';
+        }
+
+
+        setTimeout(function () {
+            const fallback = document.getElementById('reactFallback');
+
+            if (
+                isAdminPageUser &&
+                fallback &&
+                fallback.dataset.loaded !== 'true'
+            ) {
+                fallback.className = 'alert alert-danger text-center';
+                fallback.innerHTML = `
+                    <h4>Ошибка загрузки React-модуля</h4>
+                    <p>
+                        Не удалось загрузить.
+                        Проверьте подключение к интернету.
+                    </p>
+                `;
+            }
+        }, 5000);
+    </script>
+
+    <script type="text/babel">
+        if (isAdminPageUser) {
+            const API_URL = 'http://localhost/courswork/back/api/index.php/users';
+
+
+            // PROVIDER
+
+            const UserContext = React.createContext(null);
+
+            function UserProvider({ children }) {
+                const [users, setUsers] = React.useState([]);
+                const [loading, setLoading] = React.useState(true);
+                const [error, setError] = React.useState('');
+
+             const loadUsers = () => {
+    setLoading(true);
+    setError('');
+
+    fetch(API_URL)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Ошибка ответа сервера');
+            }
+
+            return response.json();
+        })
+        .then((data) => {
+            setTimeout(() => {
+                setUsers(data);
+                setLoading(false);
+            }, 700);
+        })
+        .catch(() => {
+            setTimeout(() => {
+                setError('Ошибка загрузки данных');
+                setLoading(false);
+            }, 700);
+        });
+};
+
+                const createUser = async (userData) => {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok || result.error) {
+                        throw new Error(result.error || 'Ошибка создания пользователя');
+                    }
+
+                    loadUsers();
+                };
+
+                React.useEffect(() => {
+                    loadUsers();
+                }, []);
+
+                return (
+                    <UserContext.Provider value={{
+                        users,
+                        loading,
+                        error,
+                        loadUsers,
+                        createUser
+                    }}>
+                        {children}
+                    </UserContext.Provider>
+                );
+            }
+
+            function useUsers() {
+                return React.useContext(UserContext);
+            }
+
+            // ДЕКОРАТОРНЫЙ ПОДХОД
+
+            function withAdminOnly(Component) {
+                return function ProtectedComponent(props) {
+                    const user = typeof getCurrentUser === 'function'
+                        ? getCurrentUser()
+                        : null;
+
+                    if (!user || user.role !== 'admin') {
+                        return (
+                            <div className="alert alert-warning">
+                                Форма добавления пользователя доступна только администратору.
+                            </div>
+                        );
+                    }
+
+                    return <Component {...props} />;
+                };
+            }
+
+            // ВАЛИДАЦИЯ ЧЕРЕЗ validator.js
+
+            function validateUserForm(data) {
+                const errors = {};
+
+                if (validator.isEmpty(data.name || '')) {
+                    errors.name = 'Имя обязательно для заполнения';
+                }
+
+                if (validator.isEmpty(data.email || '')) {
+                    errors.email = 'Email обязателен для заполнения';
+                } else if (!validator.isEmail(data.email)) {
+                    errors.email = 'Введите корректный email';
+                }
+
+                if (validator.isEmpty(data.password || '')) {
+                    errors.password = 'Пароль обязателен для заполнения';
+                } else if (!validator.isLength(data.password, { min: 4 })) {
+                    errors.password = 'Пароль должен содержать минимум 4 символа';
+                }
+
+                if (data.age && !validator.isInt(String(data.age), { min: 1, max: 120 })) {
+                    errors.age = 'Возраст должен быть числом от 1 до 120';
+                }
+
+                return errors;
+            }
+
+            // Компонент списка пользователей
+
+            function UserList() {
+                const { users, loading, error } = useUsers();
+
+                if (loading) {
+                    return (
+                        <div className="alert alert-info text-center">
+                            Загрузка...
+                        </div>
+                    );
+                }
+
+                if (error) {
+                    return (
+                        <div className="alert alert-danger text-center">
+                            {error}
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="card shadow mb-4">
+                        <div className="card-header bg-dark text-white">
+                            Пользователи из REST API
+                        </div>
+
+                        <div className="card-body">
+                            <div className="row g-3">
+                                {users.map((user) => (
+                                    <div className="col-md-4" key={user.id}>
+                                        <div className="card h-100">
+                                            <div className="card-body">
+                                                <h5 className="card-title">{user.name}</h5>
+
+                                                <p className="card-text">
+                                                    <strong>ID:</strong> {user.id}
+                                                </p>
+
+                                                <p className="card-text">
+                                                    <strong>Email:</strong> {user.email}
+                                                </p>
+
+                                                <p className="card-text">
+                                                    <strong>Возраст:</strong> {user.age || 'Не указан'}
+                                                </p>
+
+                                                <p className="card-text">
+                                                    <strong>Роль:</strong> {user.role === 'admin'
+                                                        ? 'Администратор'
+                                                        : 'Пользователь'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Форма создания пользователя
+
+            function UserCreateForm() {
+                const { createUser } = useUsers();
+
+                const [formData, setFormData] = React.useState({
+                    name: '',
+                    email: '',
+                    age: '',
+                    password: ''
+                });
+
+                const [errors, setErrors] = React.useState({});
+                const [successMessage, setSuccessMessage] = React.useState('');
+                const [serverError, setServerError] = React.useState('');
+
+                const handleChange = (event) => {
+                    const { name, value } = event.target;
+
+                    setFormData({
+                        ...formData,
+                        [name]: value
+                    });
+                };
+
+                const handleSubmit = async (event) => {
+                    event.preventDefault();
+
+                    setSuccessMessage('');
+                    setServerError('');
+
+                    const validationErrors = validateUserForm(formData);
+
+                    if (Object.keys(validationErrors).length > 0) {
+                        setErrors(validationErrors);
+                        return;
+                    }
+
+                    setErrors({});
+
+                    try {
+                        await createUser({
+                            name: formData.name,
+                            email: formData.email,
+                            age: formData.age || null,
+                            password: formData.password
+                        });
+
+                        setSuccessMessage('Пользователь успешно создан через React-форму');
+
+                        setFormData({
+                            name: '',
+                            email: '',
+                            age: '',
+                            password: ''
+                        });
+                    } catch (error) {
+                        setServerError(error.message);
+                    }
+                };
+
+                return (
+                    <div className="card shadow mb-4">
+                        <div className="card-header bg-dark text-white">
+                            Создание пользователя через React
+                        </div>
+
+                        <div className="card-body">
+                            {successMessage && (
+                                <div className="alert alert-success">
+                                    {successMessage}
+                                </div>
+                            )}
+
+                            {serverError && (
+                                <div className="alert alert-danger">
+                                    {serverError}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-3">
+                                    <label className="form-label">Имя</label>
+
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        className="form-control"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                    />
+
+                                    {errors.name && (
+                                        <div className="text-danger small mt-1">
+                                            {errors.name}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">Email</label>
+
+                                    <input
+                                        type="text"
+                                        name="email"
+                                        className="form-control"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                    />
+
+                                    {errors.email && (
+                                        <div className="text-danger small mt-1">
+                                            {errors.email}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">Возраст</label>
+
+                                    <input
+                                        type="number"
+                                        name="age"
+                                        className="form-control"
+                                        value={formData.age}
+                                        onChange={handleChange}
+                                    />
+
+                                    {errors.age && (
+                                        <div className="text-danger small mt-1">
+                                            {errors.age}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">Пароль</label>
+
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        className="form-control"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                    />
+
+                                    {errors.password && (
+                                        <div className="text-danger small mt-1">
+                                            {errors.password}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button type="submit" className="btn btn-dark w-100">
+                                    Создать пользователя
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            const ProtectedUserCreateForm = withAdminOnly(UserCreateForm);
+
+            // Главный компонент
+
+            function App() {
+                React.useEffect(() => {
+                    const fallback = document.getElementById('reactFallback');
+
+                    if (fallback) {
+                        fallback.dataset.loaded = 'true';
+                        fallback.style.display = 'none';
+                    }
+                }, []);
+
+                return (
+                    <UserProvider>
+                        <ProtectedUserCreateForm />
+                        <UserList />
+                    </UserProvider>
+                );
+            }
+
+            const root = ReactDOM.createRoot(document.getElementById('reactRoot'));
+            root.render(<App />);
+        }
+    </script>
+</body>
+</html>

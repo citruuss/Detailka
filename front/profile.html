@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - Деталька</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="index.html">
+                <img src="images/лого.png" alt="Логотип" style="height: 40px; width: auto; display: inline-block; margin-right: 10px;">
+                Деталька - магазин автозапчастей
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link" href="catalog.html">Каталог</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cart.html">Корзина (<span id="cartCount">0</span>)</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="profile.html">Профиль</a></li>
+
+                    <li class="nav-item" id="adminNavItem" style="display: none;">
+                        <a class="nav-link" href="admin.html">Админ-панель</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5" style="max-width: 600px;">
+
+        <div id="unauthorizedMessage" class="text-center py-5" style="display: none;">
+            <div class="fs-1 mb-3">🔒</div>
+
+            <h3>Требуется авторизация</h3>
+
+            <p>
+                Пожалуйста, войдите, чтобы просмотреть свой профиль
+            </p>
+
+            <a href="login.html" class="btn btn-dark">
+                Войти
+            </a>
+
+            <a href="register.html" class="btn btn-outline-dark">
+                Зарегистрироваться
+            </a>
+        </div>
+
+        <div id="profileContent" style="display: none;">
+            <div class="card shadow">
+
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Мой профиль</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="text-center mb-4">
+                        <div class="fs-1">😽</div>
+                        <h3 id="userName"></h3>
+                        <span id="userRole" class="badge bg-secondary"></span>
+                    </div>
+
+                    <table class="table table-borderless">
+
+                        <tr>
+                            <th style="width: 120px;">ID:</th>
+                            <td id="userId"></td>
+                        </tr>
+
+                        <tr>
+                            <th style="width: 120px;">Email:</th>
+                            <td id="userEmail"></td>
+                        </tr>
+
+                        <tr>
+                            <th>Возраст:</th>
+                            <td id="userAge"></td>
+                        </tr>
+
+                    </table>
+
+                    <hr>
+
+                    <div class="d-grid gap-2">
+                        <button
+                            class="btn btn-outline-danger"
+                            onclick="logoutAndRedirect()">
+                            Выйти из аккаунта
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 240px;"></div>
+
+    <footer class="text-white text-center py-3 mt-5">
+        <p class="mb-0">
+            &copy; 2026 Деталька. Все права защищены.
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+
+        function loadProfile() {
+
+            const user = getCurrentUser();
+
+            if (!user) {
+
+                document.getElementById('unauthorizedMessage').style.display = 'block';
+                document.getElementById('profileContent').style.display = 'none';
+
+                return;
+            }
+
+            document.getElementById('unauthorizedMessage').style.display = 'none';
+            document.getElementById('profileContent').style.display = 'block';
+
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userAge').textContent = user.age || 'Не указан';
+            document.getElementById('userId').textContent = user.id;
+
+            document.getElementById('userRole').textContent =
+                user.role === 'admin'
+                    ? 'Администратор'
+                    : 'Пользователь';
+        }
+
+        async function logoutAndRedirect() {
+            await logoutUser();
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            loadProfile();
+        });
+
+    </script>
+</body>
+</html>

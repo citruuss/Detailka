@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина - Деталька</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+             <a class="navbar-brand fw-semibold" href="index.html">
+            <img src="images/лого.png" alt="Логотип" style="height: 40px; width: auto; display: inline-block; margin-right: 10px;">
+             Деталька - магазин автозапчастей
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+               <ul class="navbar-nav ms-auto">
+    <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+    <li class="nav-item"><a class="nav-link" href="catalog.html">Каталог</a></li>
+    <li class="nav-item"><a class="nav-link" href="cart.html">Корзина (<span id="cartCount">0</span>)</a></li>
+    <li class="nav-item"><a class="nav-link" href="profile.html">Профиль</a></li>
+    <li class="nav-item" id="adminNavItem" style="display: none;">
+        <a class="nav-link" href="admin.html">Админ-панель</a>
+    </li>
+    <li class="nav-item" id="logoutNavItem" style="display: none;">
+        <a class="nav-link" href="#" onclick="logoutUser(); return false;">Выйти</a>
+    </li>
+</ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Моя корзина</h1>
+        
+        <div id="cartItems" class="mb-4">
+            <div class="text-center py-5">
+                <div class="spinner-border text-dark" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2">Загрузка корзины...</p>
+            </div>
+        </div>
+        
+        <div id="cartSummary" class="card" style="display: none;">
+            <div class="card-body">
+                <h5 class="card-title">Итого</h5>
+                <p>Количество товаров: <span id="totalItems">0</span></p>
+                <p class="h4">Сумма: <span id="totalPrice">0</span> ₽</p>
+                <button class="btn btn-success w-100 mb-2" onclick="checkout()">Оформить заказ</button>
+                <button class="btn btn-outline-danger w-100" onclick="clearCart()">Очистить корзину</button>
+            </div>
+        </div>
+    </div>
+
+     <div style="height: 200px;"></div>
+
+    <footer class="text-white text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2026 Деталька. Все права защищены.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        let cartProducts = [];
+        
+        // Загрузка корзины
+        function loadCartItems() {
+            const cart = getCart();
+            
+            if (cart.length === 0) {
+                document.getElementById('cartItems').innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="fs-1 mb-3">Упс...</div>
+                        <p class="h5">Корзина пуста</p>
+                        <a href="catalog.html" class="btn btn-dark mt-3">Вернуться в каталог</a>
+                    </div>
+                `;
+                document.getElementById('cartSummary').style.display = 'none';
+                return;
+            }
+            
+            // Используем данные из корзины (они уже содержат name, price, article)
+            cartProducts = cart.map(item => ({
+                id: item.id,
+                name: item.name || `Товар ${item.id}`,
+                price: item.price || 0,
+                article: item.article || '---',
+                quantity: item.quantity || 1
+            }));
+            
+            displayCartItems();
+            updateCartSummary();
+            document.getElementById('cartSummary').style.display = 'block';
+        }
+        
+        // Отображение товаров в корзине
+        function displayCartItems() {
+            const container = document.getElementById('cartItems');
+            if (cartProducts.length === 0) return;
+            
+            container.innerHTML = cartProducts.map(item => `
+                <div class="cart-item d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">${item.name}</h5>
+                        <p class="mb-0 text-muted small">Артикул: ${item.article}</p>
+                        <p class="mb-0">${item.price.toLocaleString()} ₽</p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="input-group me-2" style="width: 120px;">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.id}, -1)">-</button>
+                            <input type="text" class="form-control text-center quantity-input" value="${item.quantity}" readonly style="width: 40px;">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(${item.id}, 1)">+</button>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id}); loadCartItems();">
+                            Удалить
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Изменение количества товара
+        function changeQuantity(productId, delta) {
+            let cart = getCart();
+            const itemIndex = cart.findIndex(i => i.id === productId);
+            
+            if (itemIndex !== -1) {
+                const newQuantity = (cart[itemIndex].quantity || 1) + delta;
+                if (newQuantity <= 0) {
+                    cart.splice(itemIndex, 1);
+                } else {
+                    cart[itemIndex].quantity = newQuantity;
+                }
+                saveCart(cart);
+                loadCartItems();
+            }
+        }
+        
+        // Обновление итоговой суммы
+        function updateCartSummary() {
+            const totalItems = cartProducts.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            const totalPrice = cartProducts.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString();
+        }
+        
+        // Оформление заказа
+        function checkout() {
+            const cart = getCart();
+            if (cart.length === 0) {
+                showNotification('Корзина пуста', 'error');
+                return;
+            }
+            
+            // Проверяем авторизацию 
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (!isLoggedIn) {
+                if (confirm('Для оформления заказа необходимо авторизоваться. Перейти на страницу авторизации?')) {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+            
+            alert('✅ Заказ оформлен! Спасибо за покупку!\n\nС вами свяжется менеджер для подтверждения заказа в течение 15 минут.');
+            saveCart([]);
+            loadCartItems();
+            updateCartCount();
+        }
+        
+        // Инициализация страницы корзины
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            loadCartItems();
+        });
+    </script>
+</body>
+</html>

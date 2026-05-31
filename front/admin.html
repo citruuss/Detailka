@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Деталька</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="index.html">
+            <img src="images/лого.png" alt="Логотип" style="height: 40px; width: auto; display: inline-block; margin-right: 10px;">
+             Деталька - магазин автозапчастей
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link" href="catalog.html">Каталог</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cart.html">Корзина (<span id="cartCount">0</span>)</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">Профиль</a></li>
+                    <li class="nav-item" id="adminNavItem" style="display: none;">
+                        <a class="nav-link active" href="admin.html">Админ-панель</a>
+                    </li>
+                    <li class="nav-item" id="logoutNavItem" style="display: none;">
+                        <a class="nav-link" href="#" onclick="logoutUser(); return false;">Выйти</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div id="unauthorizedMessage" class="text-center py-5" style="display: none;">
+            <div class="fs-1 mb-3">🔒</div>
+            <h3>Доступ запрещён</h3>
+            <p>Только для администраторов</p>
+            <a href="login.html" class="btn btn-dark">Войти как администратор</a>
+        </div>
+        
+        <div id="adminContent" style="display: none;">
+            <h1 class="text-center mb-4">Панель администратора</h1>
+            
+            <!-- Вкладка: Пользователи -->
+            <div id="tabUsers" class="tab-content">
+                <div class="card">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <span>Список пользователей</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="usersList" class="table-responsive">
+                            <div class="text-center py-3">
+                                <div class="spinner-border text-dark" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                                <p>Загрузка пользователей...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+    <div class="card-header bg-dark text-white">
+        Добавить товар в каталог
+    </div>
+    <div class="card-body">
+        <form id="addProductForm">
+            <div class="mb-3">
+                <label class="form-label">Название товара</label>
+                <input type="text" class="form-control" id="productName" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Артикул</label>
+                <input type="text" class="form-control" id="productArticle" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Цена</label>
+                <input type="number" class="form-control" id="productPrice" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Категория</label>
+                <select class="form-select" id="productCategory" required>
+                    <option value="engine">Двигатель</option>
+                    <option value="brakes">Тормозная система</option>
+                    <option value="suspension">Подвеска и шины</option>
+                    <option value="electrics">Электрика и климат</option>
+                    <option value="body">Кузов и оптика</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Описание</label>
+                <textarea class="form-control" id="productDescription" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Путь к картинке</label>
+                <input type="text" class="form-control" id="productImage" placeholder="images/placeholder.jpg">
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100">Добавить товар</button>
+        </form>
+    </div>
+</div>
+        </div>
+    </div>
+
+    <footer class="text-white text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2026 Деталька. Все права защищены.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        let currentUser = null;
+        
+        // Проверка прав доступа
+       function checkAdminAccess() {
+    currentUser = getCurrentUser();
+    
+    console.log('Проверка доступа:', currentUser);  // для отладки
+    
+    if (!currentUser || currentUser.role !== 'admin') {
+        document.getElementById('unauthorizedMessage').style.display = 'block';
+        document.getElementById('adminContent').style.display = 'none';
+        return false;
+    }
+    
+    document.getElementById('unauthorizedMessage').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    
+    // Показываем кнопку выхода и админ-панели в меню
+    const logoutItem = document.getElementById('logoutNavItem');
+    if (logoutItem) logoutItem.style.display = 'block';
+    
+    const adminItem = document.getElementById('adminNavItem');
+    if (adminItem) adminItem.style.display = 'block';
+    
+    // Загружаем данные
+    loadUsers();
+
+    return true;
+}
+        
+        //УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ
+        async function loadUsers() {
+            const container = document.getElementById('usersList');
+            container.innerHTML = '<div class="text-center py-3"><div class="spinner-border"></div><p>Загрузка...</p></div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/index.php/users`);
+                const users = await response.json();
+                
+                if (Array.isArray(users)) {
+                    displayUsers(users);
+                } else {
+                    container.innerHTML = '<div class="alert alert-danger">Ошибка загрузки пользователей</div>';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                container.innerHTML = '<div class="alert alert-danger">Ошибка соединения с сервером</div>';
+            }
+        }
+        
+        function displayUsers(users) {
+            const container = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-center">Нет пользователей</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Email</th>
+                            <th>Возраст</th>
+                            <th>Роль</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.age || '-'}</td>
+                                <td><span class="badge ${user.role === 'admin' ? 'bg-danger' : 'bg-secondary'}">${user.role === 'admin' ? 'Админ' : 'Пользователь'}</span></td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteUserById(${user.id})" ${user.id === currentUser?.id ? 'disabled' : ''}>Удалить</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        async function deleteUserById(userId) {
+            if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/index.php/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Пользователь удалён', 'success');
+                    loadUsers();
+                } else {
+                    showNotification('Ошибка удаления', 'error');
+                }
+            } catch (error) {
+                showNotification('Ошибка соединения', 'error');
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            updateLogoutButton();
+            checkAdminAccess();
+        });
+
+        setInterval(() => {
+    const user = getCurrentUser();
+
+    if (!user || user.role !== 'admin') {
+        window.location.href = 'index.html';
+    }
+}, 1000);
+    </script>
+</body>
+</html>
