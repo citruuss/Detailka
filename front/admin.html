@@ -126,7 +126,7 @@
        function checkAdminAccess() {
     currentUser = getCurrentUser();
     
-    console.log('Проверка доступа:', currentUser);  // для отладки
+    console.log('Проверка доступа:', currentUser); 
     
     if (!currentUser || currentUser.role !== 'admin') {
         document.getElementById('unauthorizedMessage').style.display = 'block';
@@ -136,15 +136,11 @@
     
     document.getElementById('unauthorizedMessage').style.display = 'none';
     document.getElementById('adminContent').style.display = 'block';
-    
-    // Показываем кнопку выхода и админ-панели в меню
     const logoutItem = document.getElementById('logoutNavItem');
     if (logoutItem) logoutItem.style.display = 'block';
     
     const adminItem = document.getElementById('adminNavItem');
     if (adminItem) adminItem.style.display = 'block';
-    
-    // Загружаем данные
     loadUsers();
 
     return true;

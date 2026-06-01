@@ -335,14 +335,11 @@
     
     function restoreOriginalOrder() {
         const container = document.getElementById('productsContainer');
-        // Очищаем контейнер
         container.innerHTML = '';
-        // Восстанавливаем товары в исходном порядке
         originalOrder.forEach(originalProduct => {
             const newProduct = originalProduct.cloneNode(true);
             container.appendChild(newProduct);
         });
-        // Обновляем ссылки на товары после восстановления
         attachFilterEvents();
     }
     
@@ -352,13 +349,9 @@
         const category = document.getElementById('categoryFilter')?.value || 'all';
         const sortBy = document.getElementById('sortSelect')?.value || 'default';
         const priceMax = document.getElementById('priceMax')?.value || '';
-        
-        // Если выбрана сортировка "По умолчанию" - восстанавливаем исходный порядок
         if (sortBy === 'default') {
             restoreOriginalOrder();
         }
-        
-        // Получаем актуальные товары (после возможного восстановления)
         const container = document.getElementById('productsContainer');
         let products = Array.from(container.querySelectorAll('.product-item'));
         let visibleCount = 0;
@@ -381,15 +374,12 @@
             }
         });
         
-        // Обновляем счётчик
         const resultCount = document.getElementById('resultCount');
         if (resultCount) {
             resultCount.textContent = `Найдено товаров: ${visibleCount}`;
         }
                 
-        // Сортировка (только если не "По умолчанию")
         if (sortBy !== 'default') {
-            // Получаем только видимые товары
             const visibleProducts = Array.from(products).filter(p => p.style.display !== 'none');
             const hiddenProducts = Array.from(products).filter(p => p.style.display === 'none');
             
@@ -400,8 +390,6 @@
                 if (sortBy === 'price-desc') return priceB - priceA;
                 return 0;
             });
-            
-            // Пересобираем: сначала отсортированные видимые, потом скрытые
             visibleProducts.forEach(product => container.appendChild(product));
             hiddenProducts.forEach(product => container.appendChild(product));
         }
